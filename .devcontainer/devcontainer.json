@@ -1,0 +1,28 @@
+{
+    "name": "PH306 Assignment",
+    "build": {
+        "dockerfile": "Dockerfile",
+        "context": ".."
+    },
+    "containerEnv": {
+        "ENV_NAME": "ph306"
+    },
+    "customizations": {
+        "vscode": {
+        "settings": {
+            // Points directly to the python binary in the ph306 environment
+            "python.defaultInterpreterPath": "/opt/conda/envs/ph306/bin/python",
+            "python.terminal.activateEnvironment": true
+        },
+            "extensions": [
+                "ms-python.python",
+                "ms-python.vscode-pylance",
+                "eamodio.gitlens",
+                "github.vscode-pull-request-github",
+                "formulahendry.code-runner",
+                "ms-toolsai.jupyter"
+            ]
+        }
+    },
+    "remoteUser": "mambauser"
+}

@@ -1,0 +1,12 @@
+ipython
+jupyter
+jupyterlab
+matplotlib
+astropy
+numpy
+scipy
+pandas
+pytest
+flake8
+mypy
+numpydoc
