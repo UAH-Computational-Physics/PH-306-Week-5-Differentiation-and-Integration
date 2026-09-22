@@ -70,7 +70,7 @@ Validation before completion:
 - Confirm requirements.txt and environment.yml are both present after regeneration.
 - Run at least one lightweight sanity check appropriate to the generated workflow (for example, Python syntax check for script-based assignments).
 
-Autograder contract rules:
+Autograder rules:
 - Do not rename required functions, classes, or files that are referenced by tests or grading harnesses.
 - Keep function signatures stable unless the instructor instructions explicitly require changes.
 - Ensure README.md instructions, starter code names, and test expectations all use the same identifiers.
