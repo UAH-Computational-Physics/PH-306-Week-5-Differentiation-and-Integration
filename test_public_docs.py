@@ -1,13 +1,25 @@
 import pytest
 from numpydoc.validate import validate
 
-import assignment
+import calculus
 
 
 DOCSTRING_TARGETS = [
-    # Add Functions for Docstring Feedback here
-    # For example:
-    # assignment.distance_traveled
+    calculus.magnetic_time_deriv,
+    calculus.magnetic_plot,
+    calculus.boas_problem_4_1_3,
+    calculus.boas_problem_4_1_8,
+    calculus.boas_problem_4_1_12,
+    calculus.boas_problem_4_1_19,
+    calculus.boas_example_4_9_3,
+    calculus.boas_problem_4_9_1,
+    calculus.boas_problem_5_2_1,
+    calculus.boas_problem_5_2_6,
+    calculus.boas_problem_5_2_10,
+    calculus.boas_problem_5_3_18,
+    calculus.total_solar_irradiance,
+    calculus.irradiance_plot,
+
 ]
 
 DOCSTRING_CHECKS = {
