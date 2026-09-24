@@ -23,28 +23,35 @@ def boas_problem_4_1_3(u, v, w):
     raise NotImplementedError("TODO: Implement this function.")
 
 
-def boas_problem_4_1_8(x, y, r):
+def boas_problem_4_1_8(x, r):
     """Problem 4.1.8 from Boas: Find the derivative of the function."""
     raise NotImplementedError("TODO: Implement this function.")
 
 
-def boas_problem_4_1_12(x, y, theta):
+def boas_problem_4_1_12(y, theta):
     """Problem 4.1.12 from Boas: Find the derivative of the function."""
     raise NotImplementedError("TODO: Implement this function.")
 
 
-def boas_problem_4_1_19(x, y, r, theta):
+def boas_problem_4_1_19(y, r):
     """Problem 4.1.19 from Boas: Find the derivative of the function."""
     raise NotImplementedError("TODO: Implement this function.")
 
 
-def boas_example_4_9_3(volume, ellipsoid, semi_major_axes=None):
+def boas_example_4_9_3(
+        x, y, z,
+        a, b, c,
+        semi_major_axes=None
+    ):
     """Example 4.9.3 from Boas: Maximized Volume of a box in an ellipsoid.
     """
     raise NotImplementedError("TODO: Implement this function.")
 
 
-def boas_problem_4_9_1(area, perimeter, total_perimeter=None):
+def boas_problem_4_9_1(
+        l, s, theta,
+        total_perimeter=None
+    ):
     """Problem 4.9.1 from Boas: Maximized Area of a rectangle with isoceles triangle caps.
     """
     raise NotImplementedError("TODO: Implement this function.")
