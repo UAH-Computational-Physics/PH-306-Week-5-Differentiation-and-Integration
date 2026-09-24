@@ -9,16 +9,17 @@
     - Problem 4.1.8 with `boas_problem_4_1_8`.
     - Problem 4.1.12 with `boas_problem_4_1_12`.
     - Problem 4.1.19 with `boas_problem_4_1_19`.
-    - Example 4.9.3 with `boas_example_4_9_3(volume, ellipsoid, semi_major_axes=None)` using Lagrange Multipliers.
-        - `volume` and `ellipsoid` should be `sympy` expressions.
+    - Example 4.9.3 with `boas_example_4_9_3(x, y, z, a, b, c, semi_major_axes=None)` using Lagrange Multipliers.
+        - `x`, `y`, `z`, `a`, `b`, `c` should be `sympy` symbols.
         - If `semi_major_axes` is `None`, return the general symbolic result in terms of $a$, $b$, $c$.
         - If `semi_major_axes` is a tuple/array of numeric values $(a, b, c)$, substitute them into the symbolic result and return the numeric maximum volume as a scalar.
         - I recommend using [`sympy`](https://docs.sympy.org/latest/index.html) to solve this constrained optimization problem symbolically (e.g., via Lagrange multipliers, `sympy.solve`, or `sympy.calculus.util`), then substitute numeric semi-axis values with `.subs()` and `.evalf()` when they are provided.
-    - Problem 4.9.1: find the maximum area of a rectangle capped with isoceles triangles with `boas_problem_4_9_1(area, perimeter, semi_major_axes=None)` using Lagrange multipliers. Note that `area` and `perimeter` should be `sympy` expressions.
-1. Complete the following exercises from Boas by evaluating the given integral with `sympy` (*e.g.*, `sympy.integrate`) for an arbitrary `integrand` (a `sympy` expression):
+    - Problem 4.9.1: find the maximum area of a rectangle capped with isoceles triangles with `boas_problem_4_9_1(l, s, theta, total_perimeter=None)` using Lagrange multipliers. Note that `l`, `s`, `theta` should be `sympy` symbols for the rectangle length, triangle-side length, and triangle half-angle.
+        - If `total_perimeter` is `None`, return the general symbolic solution `(l, s, theta)` at the optimum.
+        - If `total_perimeter` is a numeric value, substitute the solution into the area expression and return the numeric maximum area as a scalar.
+1. Complete the following exercises from Boas by evaluating the given double integral with `scipy.integrate.dblquad` for an arbitrary `integrand` (a callable matching `dblquad`'s expected argument order):
     - Problem 5.2.1 with `boas_problem_5_2_1`.
     - Problem 5.2.6 with `boas_problem_5_2_6`.
-    - Problem 5.2.7 with `boas_problem_5_2_7`.
     - Problem 5.2.10 with `boas_problem_5_2_10`.
 1. Complete the following exercise from Boas:
     - Problem 5.3.18: evaluate the definite integral for arbitrary `limits` with `boas_problem_5_3_18(limits)`.
