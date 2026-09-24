@@ -1,7 +1,9 @@
 import os
 from pathlib import Path
+from warnings import catch_warnings, simplefilter
 
 import matplotlib
+from yaml import warnings
 matplotlib.use("Agg")  # headless backend for CI/CodeGrade
 
 import matplotlib.pyplot as plt
@@ -20,6 +22,11 @@ import calculus
 
 # Reference plots are rendered with LaTeX text rendering enabled.
 plt.rcParams["text.usetex"] = True
+
+# mpmath (a sympy dependency) emits this on some solve()/evalf() calls; not actionable here.
+pytestmark = pytest.mark.filterwarnings(
+    "ignore:bitcount function is deprecated:DeprecationWarning"
+)
 
 UPLOADED_FILES = os.environ.get("UPLOADED_FILES", ".")
 
@@ -57,49 +64,46 @@ def test_boas_problem_4_1_3():
 
 def test_boas_problem_4_1_8():
     """z = x**2 + 2*y**2, r**2 = x**2 + y**2; check (dz/dx) holding r constant."""
-    x_, y_, r_ = sp.symbols("x y r", real=True)
+    x_, r_ = sp.symbols("x r", real=True)
 
-    result = calculus.boas_problem_4_1_8(x_, y_, r_)
+    result = calculus.boas_problem_4_1_8(x_, r_)
 
     x0, r0 = 1.1, 2.5
-    y0 = np.sqrt(r0**2 - x0**2)
-    value = complex(result.subs({x_: x0, y_: y0, r_: r0}).evalf())
+    value = complex(result.subs({x_: x0, r_: r0}).evalf())
     assert np.isclose(value.real, -2 * x0, rtol=1e-8, atol=1e-8)
 
 
 def test_boas_problem_4_1_12():
     """z = x**2 + 2*y**2, tan(theta) = y / x; check (dz/dy) holding theta constant."""
-    x_, y_, theta_ = sp.symbols("x y theta", real=True)
+    y_, theta_ = sp.symbols("y theta", real=True)
 
-    result = calculus.boas_problem_4_1_12(x_, y_, theta_)
+    result = calculus.boas_problem_4_1_12(y_, theta_)
 
     theta0, y0 = 0.9, 1.4
     x0 = y0 / np.tan(theta0)
     expected = 2 * x0**2 / y0 + 4 * y0
-    value = complex(result.subs({x_: x0, y_: y0, theta_: theta0}).evalf())
+    value = complex(result.subs({y_: y0, theta_: theta0}).evalf())
     assert np.isclose(value.real, expected, rtol=1e-8, atol=1e-8)
 
 
 def test_boas_problem_4_1_19():
     """z = x**2 + 2*y**2, x = r*cos(theta), y = r*sin(theta); check (d^2 z)/(dr dy)."""
-    x_, y_, r_, theta_ = sp.symbols("x y r theta", real=True)
+    y_, r_ = sp.symbols("y r", real=True)
 
-    result = calculus.boas_problem_4_1_19(x_, y_, r_, theta_)
+    result = calculus.boas_problem_4_1_19(y_, r_)
 
     x0, y0 = 1.3, 0.7
     r0, theta0 = np.hypot(x0, y0), np.arctan2(y0, x0)
-    expected = y0 * (6 * x0**2 + 4 * y0**2) / (x0**2 + y0**2) ** 1.5
-    value = complex(result.subs({x_: x0, y_: y0, r_: r0, theta_: theta0}).evalf())
+    expected = 0
+    value = complex(result.subs({y_: y0, r_: r0}).evalf())
     assert np.isclose(value.real, expected, rtol=1e-6, atol=1e-6)
 
 
 def test_boas_example_4_9_3_symbolic():
     """Box of volume 8*x*y*z inscribed in an ellipsoid; check the general max-volume formula."""
     x_, y_, z_, a_, b_, c_ = sp.symbols("x y z a b c", positive=True)
-    volume = 8 * x_ * y_ * z_
-    ellipsoid = x_**2 / a_**2 + y_**2 / b_**2 + z_**2 / c_**2
 
-    result = calculus.boas_example_4_9_3(volume, ellipsoid)
+    result = calculus.boas_example_4_9_3(x_, y_, z_, a_, b_, c_)
 
     expected = 8 * a_ * b_ * c_ / (3 * sp.sqrt(3))
     assert sp.simplify(result - expected) == 0
@@ -108,53 +112,76 @@ def test_boas_example_4_9_3_symbolic():
 def test_boas_example_4_9_3_numeric():
     """Box of volume 8*x*y*z inscribed in an ellipsoid; check the numeric max volume."""
     x_, y_, z_, a_, b_, c_ = sp.symbols("x y z a b c", positive=True)
-    volume = 8 * x_ * y_ * z_
-    ellipsoid = x_**2 / a_**2 + y_**2 / b_**2 + z_**2 / c_**2
 
     a0, b0, c0 = 2.0, 3.0, 4.0
-    result = calculus.boas_example_4_9_3(volume, ellipsoid, semi_major_axes=(a0, b0, c0))
+    result = calculus.boas_example_4_9_3(x_, y_, z_, a_, b_, c_, semi_major_axes=(a0, b0, c0))
 
     expected = 8 * a0 * b0 * c0 / (3 * np.sqrt(3))
     assert np.isclose(float(result), expected, rtol=1e-6)
 
 
 def test_boas_problem_4_9_1_symbolic():
-    """Rectangle with two isoceles-triangle caps; check the general max-area formula."""
+    """Rectangle with two isoceles-triangle caps; check the general max-area condition."""
     l_, s_, theta_ = sp.symbols("l s theta", positive=True)
-    area = 2 * l_ * s_ * sp.cos(theta_) + s_**2 * sp.sin(2 * theta_)
-    perimeter = 2 * l_ + 4 * s_
 
-    result = calculus.boas_problem_4_9_1(area, perimeter)
+    result = calculus.boas_problem_4_9_1(l_, s_, theta_)
 
-    extra_symbols = result.free_symbols - {l_, s_, theta_}
-    assert len(extra_symbols) == 1
-    p_symbol = extra_symbols.pop()
-
-    for p_val in (6.0, 10.0):
-        got = complex(result.subs(p_symbol, p_val).evalf())
-        expected = np.sqrt(3) / 24 * p_val**2
-        assert np.isclose(got.real, expected, rtol=1e-6)
+    assert isinstance(result, tuple) and len(result) == 3
+    l_sol, s_sol, theta_sol = result
+    assert sp.simplify(l_sol - s_sol) == 0
+    assert sp.simplify(theta_sol - sp.pi / 6) == 0
 
 
 def test_boas_problem_4_9_1_numeric():
     """Rectangle with two isoceles-triangle caps; check the numeric max area."""
     l_, s_, theta_ = sp.symbols("l s theta", positive=True)
-    area = 2 * l_ * s_ * sp.cos(theta_) + s_**2 * sp.sin(2 * theta_)
-    perimeter = 2 * l_ + 4 * s_
 
-    total_perimeter = 6.0
-    result = calculus.boas_problem_4_9_1(area, perimeter, total_perimeter=total_perimeter)
+    for total_perimeter in (6.0, 10.0):
+        result = calculus.boas_problem_4_9_1(l_, s_, theta_, total_perimeter=total_perimeter)
 
-    expected = np.sqrt(3) / 24 * total_perimeter**2
-    assert np.isclose(float(result), expected, rtol=1e-6)
+        expected = np.sqrt(3) / 24 * total_perimeter**2
+        assert np.isclose(float(result), expected, rtol=1e-6)
 
 
 # --- Integration --- #
+def test_boas_problem_5_2_1():
+    """Double integral of 3x over 0<=x<=1, 2<=y<=4; expected value is 3."""
+    # scipy dblquad calls func(y, x), so x is the second positional argument.
+    result = calculus.boas_problem_5_2_1(lambda y, x: 3 * x)
+
+    assert np.isclose(result[0], 3, rtol=1e-6)
+
+
+def test_boas_problem_5_2_6():
+    """Double integral of x over 1<=y<=2, sqrt(y)<=x<=y**2; expected value is 2.35."""
+    result = calculus.boas_problem_5_2_6(lambda x, y: x)
+
+    assert np.isclose(result[0], 2.35, rtol=1e-3)
+
+
+def test_boas_problem_5_2_10():
+    """Sum of two double integrals of y; expected value is 5*pi."""
+    # scipy dblquad calls func(y, x), so y is the first positional argument.
+    result = calculus.boas_problem_5_2_10(lambda y, x: y)
+
+    assert np.isclose(result, 5 * np.pi, rtol=1e-6)
+
+
+def test_boas_problem_5_3_18():
+    """Integral from 0 to 2; expected value is 3*sqrt(2)/2 + ln(1 + sqrt(2))/2."""
+    result = calculus.boas_problem_5_3_18((0, 2))
+
+    expected = 3 * np.sqrt(2) / 2 + np.log(1 + np.sqrt(2)) / 2
+    assert np.isclose(result[0], expected, rtol=1e-6)
+
+
 def _planck_spectral_irradiance(wavelength, temperature):
     """Blackbody spectral exitance (Planck's law) in W/m^2/nm for a wavelength Quantity."""
     exponent = (h * c / (wavelength * k_B * temperature)).to_value(u.dimensionless_unscaled)
     prefactor = 2 * np.pi * h * c**2 / wavelength**5
-    return (prefactor / np.expm1(exponent)).to(u.W / (u.m**2 * u.nm))
+    with catch_warnings():
+        simplefilter("ignore")
+        return (prefactor / np.expm1(exponent)).to(u.W / (u.m**2 * u.nm))
 
 
 def test_total_solar_irradiance_blackbody():
